@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LyricFlow - Modern Lyric Studio</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121214;
+            color: #e4e4e7;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #18181b;
+            border-bottom: 1px solid #27272a;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #a855f7;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background-color: #27272a;
+            color: #e4e4e7;
+            border: 1px solid #3f3f46;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #3f3f46;
+            border-color: #52525b;
+        }
+
+        button.primary {
+            background-color: #9333ea;
+            border-color: #a855f7;
+            color: #ffffff;
+        }
+
+        button.primary:hover {
+            background-color: #7e22ce;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .editor-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 12px;
+            overflow-y: auto;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            background-color: #18181b;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #27272a;
+        }
+
+        .tag-btn {
+            background-color: #27272a;
+            color: #c084fc;
+            border: 1px solid #3f3f46;
+            font-size: 0.75rem;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .tag-btn:hover {
+            background-color: #9333ea;
+            color: #ffffff;
+        }
+
+        .song-title-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #3f3f46;
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 6px 0;
+            outline: none;
+            width: 100%;
+        }
+
+        .song-title-input:focus {
+            border-bottom-color: #a855f7;
+        }
+
+        textarea {
+            flex: 1;
+            background-color: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            color: #f4f4f5;
+            font-family: inherit;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            padding: 16px;
+            resize: none;
+            outline: none;
+            min-height: 350px;
+        }
+
+        textarea:focus {
+            border-color: #a855f7;
+        }
+
+        .sidebar {
+            width: 300px;
+            background-color: #18181b;
+            border-left: 1px solid #27272a;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background-color: #121214;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .panel h3 {
+            font-size: 0.9rem;
+            color: #a1a1aa;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-card {
+            background-color: #18181b;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #a855f7;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #a1a1aa;
+        }
+
+        .audio-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-btn {
+            display: block;
+            text-align: center;
+            background-color: #27272a;
+            border: 1px dashed #52525b;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #a1a1aa;
+        }
+
+        .file-upload-btn:hover {
+            border-color: #a855f7;
+            color: #ffffff;
+        }
+
+        audio {
+            width: 100%;
+            height: 36px;
+            margin-top: 6px;
+        }
+
+        /* Teleprompter Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 100;
+            flex-direction: column;
+            padding: 40px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .teleprompter-content {
+            flex: 1;
+            overflow-y: auto;
+            font-size: 2rem;
+            line-height: 2;
+            text-align: center;
+            white-space: pre-wrap;
+            color: #ffffff;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">🎵 LyricFlow Studio</div>
+        <div class="header-actions">
+            <button onclick="toggleTeleprompter()">📱 Teleprompter</button>
+            <button onclick="exportLyrics('txt')">💾 Export .TXT</button>
+            <button onclick="copyToClipboard()" class="primary">📋 Copy Lyrics</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="editor-section">
+            <input type="text" id="songTitle" class="song-title-input" placeholder="Untitled Song..." value="Untitled Song">
+            
+            <div class="toolbar">
+                <span style="font-size:0.8rem; color:#a1a1aa; margin-right:4px;">Add Marker:</span>
+                <button class="tag-btn" onclick="insertTag('[Intro]')">[Intro]</button>
+                <button class="tag-btn" onclick="insertTag('[Verse 1]')">[Verse 1]</button>
+                <button class="tag-btn" onclick="insertTag('[Pre-Chorus]')">[Pre-Chorus]</button>
+                <button class="tag-btn" onclick="insertTag('[Chorus]')">[Chorus]</button>
+                <button class="tag-btn" onclick="insertTag('[Verse 2]')">[Verse 2]</button>
+                <button class="tag-btn" onclick="insertTag('[Bridge]')">[Bridge]</button>
+                <button class="tag-btn" onclick="insertTag('[Outro]')">[Outro]</button>
+            </div>
+
+            <textarea id="lyricInput" placeholder="Start typing your lyrics here..." oninput="updateMetrics()"></textarea>
+        </div>
+
+        <div class="sidebar">
+            <div class="panel">
+                <h3>Song Metrics</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="wordCount">0</div>
+                        <div class="stat-label">Words</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="lineCount">0</div>
+                        <div class="stat-label">Lines</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="charCount">0</div>
+                        <div class="stat-label">Characters</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="estDuration">0m 0s</div>
+                        <div class="stat-label">Est. Duration</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Backing Track</h3>
+                <div class="audio-controls">
+                    <label for="audioFile" class="file-upload-btn">📁 Load Audio File</label>
+                    <input type="file" id="audioFile" accept="audio/*" onchange="loadAudio(event)">
+                    <audio id="audioPlayer" controls></audio>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teleprompter Modal -->
+    <div id="prompterModal" class="modal">
+        <div class="modal-header">
+            <h2>Teleprompter View</h2>
+            <div style="display:flex; gap:10px;">
+                <button onclick="toggleAutoScroll()" id="scrollToggleBtn">▶ Auto-Scroll</button>
+                <button onclick="toggleTeleprompter()">Close</button>
+            </div>
+        </div>
+        <div id="prompterText" class="teleprompter-content"></div>
+    </div>
+
+    <script>
+        const lyricInput = document.getElementById('lyricInput');
+        const songTitle = document.getElementById('songTitle');
+        let autoScrollInterval = null;
+
+        // Auto-load saved lyrics from storage
+        window.onload = () => {
+            if (localStorage.getItem('savedLyrics')) {
+                lyricInput.value = localStorage.getItem('savedLyrics');
+            }
+            if (localStorage.getItem('savedTitle')) {
+                songTitle.value = localStorage.getItem('savedTitle');
+            }
+            updateMetrics();
+        };
+
+        // Insert structure markers at cursor position
+        function insertTag(tag) {
+            const start = lyricInput.selectionStart;
+            const end = lyricInput.selectionEnd;
+            const text = lyricInput.value;
+            const newText = text.substring(0, start) + "\n" + tag + "\n" + text.substring(end);
+            lyricInput.value = newText;
+            lyricInput.focus();
+            lyricInput.selectionStart = lyricInput.selectionEnd = start + tag.length + 2;
+            updateMetrics();
+        }
+
+        // Live stats calculation
+        function updateMetrics() {
+            const text = lyricInput.value;
+            localStorage.setItem('savedLyrics', text);
+            localStorage.setItem('savedTitle', songTitle.value);
+
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const lines = text.trim() ? text.split('\n').length : 0;
+            const chars = text.length;
+
+            // Estimated duration calculation based on average ~130 WPM
+            const estSeconds = Math.round((words / 130) * 60);
+            const mins = Math.floor(estSeconds / 60);
+            const secs = estSeconds % 60;
+
+            document.getElementById('wordCount').innerText = words;
+            document.getElementById('lineCount').innerText = lines;
+            document.getElementById('charCount').innerText = chars;
+            document.getElementById('estDuration').innerText = `${mins}m ${secs}s`;
+        }
+
+        // Audio backing track loader
+        function loadAudio(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const player = document.getElementById('audioPlayer');
+                player.src = URL.createObjectURL(file);
+            }
+        }
+
+        // Copy lyrics to clipboard
+        function copyToClipboard() {
+            navigator.clipboard.writeText(`${songTitle.value}\n\n${lyricInput.value}`);
+            alert('Lyrics copied to clipboard!');
+        }
+
+        // Export as file
+        function exportLyrics(format) {
+            const content = `${songTitle.value}\n${'='.repeat(songTitle.value.length)}\n\n${lyricInput.value}`;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${songTitle.value.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${format}`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Teleprompter Modal Toggle
+        function toggleTeleprompter() {
+            const modal = document.getElementById('prompterModal');
+            const prompterText = document.getElementById('prompterText');
+
+            if (modal.style.display === 'flex') {
+                modal.style.display = 'none';
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            } else {
+                prompterText.innerText = `${songTitle.value}\n\n${lyricInput.value}`;
+                modal.style.display = 'flex';
+            }
+        }
+
+        // Teleprompter Auto-Scroll
+        function toggleAutoScroll() {
+            const prompter = document.getElementById('prompterText');
+            const btn = document.getElementById('scrollToggleBtn');
+
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+                btn.innerText = '▶ Auto-Scroll';
+            } else {
+                btn.innerText = '⏸ Pause';
+                autoScrollInterval = setInterval(() => {
+                    prompter.scrollTop += 1;
+                }, 30);
+            }
+        }
+    </script>
+</body>
+</html>
